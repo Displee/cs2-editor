@@ -197,9 +197,6 @@ class MainController : Initializable {
 
 		//init singleton
 		AutoCompleteUtils
-
-		//temp
-		openCache(File("C:\\Users\\Displee\\Documents\\Projects\\Resources\\RSPS\\RS2\\634\\rs634_cache"))
 	}
 
 	private fun openCache(f: File? = null) {
