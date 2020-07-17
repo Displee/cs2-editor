@@ -1,0 +1,16 @@
+bin
+target
+decompiled
+scripts
+test
+test2
+compiled
+
+binary
+sources
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+.idea

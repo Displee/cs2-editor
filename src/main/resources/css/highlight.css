@@ -1,0 +1,49 @@
+.styled-text-area .text {
+    -fx-fill: #A9B7C6;
+}
+.styled-text-area .text.keyword {
+    -fx-fill: #CC7832;
+}
+.styled-text-area .text.semicolon {
+    -fx-fill: #CC7832;
+}
+.styled-text-area .text.string {
+    -fx-fill: #6A8759;
+}
+.styled-text-area .text.comment {
+    -fx-fill: cadetblue;
+}
+.styled-text-area .text.paragraph-box:has-caret {
+    -fx-background-color: #f2f9fc;
+}
+.styled-text-area .selection {
+    -fx-fill: #214283;
+}
+.styled-text-area .biclass {
+    -fx-fill: #769AA5;
+}
+.styled-text-area .number {
+    -fx-fill: #6897BB;
+}
+.styled-text-area .cs2-call {
+    -fx-fill: #FFC66D;
+}
+.styled-text-area .color {
+    -fx-fill: #A8C023;
+}
+.styled-text-area .caret {
+    -fx-stroke: #BBBBBB;
+}
+.styled-text-area .lineno {
+    -fx-font-style: normal;
+    -fx-fill: #b7b7b7;
+    -fx-background-color: #21252B;
+    -fx-pref-width: 50px;
+    -fx-alignment: center-left;
+    -fx-pref-height: 50px;
+    -fx-font-size: 18px;
+    -fx-cursor: default;
+}
+.styled-text-area .var {
+    -rtfx-background-color: #344134;
+}

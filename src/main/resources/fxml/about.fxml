@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <center>
+      <TextArea fx:id="textArea" editable="false" prefHeight="200.0" prefWidth="350.0" styleClass="text-center" wrapText="true" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>

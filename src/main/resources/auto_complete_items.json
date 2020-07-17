@@ -1,0 +1,87 @@
+[
+	{
+		"name": "VARP",
+		"return_type": "int[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "VARPBIT",
+		"return_type": "int[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "VARC",
+		"return_type": "int[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "CLAN",
+		"return_type": "int[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "CLANBIT",
+		"return_type": "int[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "CLANDEF112",
+		"return_type": "int[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "CLANDEF113",
+		"return_type": "int[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "STRING",
+		"return_type": "string[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "CLANDEF_STRING",
+		"return_type": "string[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "CLANDEF_STRING115",
+		"return_type": "string[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "CLANDEF_LONG",
+		"return_type": "long[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "CLANDEF_LONG114",
+		"return_type": "long[]",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "CHILD",
+		"return_type": "Widget",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "_CHILD",
+		"return_type": "Widget",
+		"type": "CONSTANT"
+	},
+	{
+		"name": "widget",
+		"return_type": "Widget",
+		"type": "METHOD",
+		"arguments":  [
+			{
+				"name": "interfaceId",
+				"return_type": "int"
+			},
+			{
+				"name": "componentId",
+				"return_type": "int"
+			}
+		]
+	}
+]

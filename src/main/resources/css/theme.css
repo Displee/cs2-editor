@@ -1,0 +1,248 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500');
+
+@font-face {
+    src: url('font/JetBrainsMono/JetBrainsMono-Bold.ttf');
+}
+@font-face {
+    src: url('font/JetBrainsMono/JetBrainsMono-Bold-Italic.ttf');
+}
+@font-face {
+    src: url('font/JetBrainsMono/JetBrainsMono-ExtraBold.ttf');
+}
+@font-face {
+    src: url('font/JetBrainsMono/JetBrainsMono-ExtraBold-Italic.ttf');
+}
+@font-face {
+    src: url('font/JetBrainsMono/JetBrainsMono-Italic.ttf');
+}
+@font-face {
+    src: url('font/JetBrainsMono/JetBrainsMono-Medium.ttf');
+}
+@font-face {
+    src: url('font/JetBrainsMono/JetBrainsMono-Medium-Italic.ttf');
+}
+@font-face {
+    src: url('font/JetBrainsMono/JetBrainsMono-Regular.ttf');
+}
+
+.root {
+    -fx-font-family: 'Roboto';
+}
+.context-menu {
+    -fx-background-color: #21252B;
+    -fx-border-color: #21252B;
+}
+.menu-bar {
+    -fx-background-color: #21252B;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: #181A1F;
+}
+.menu, .menu-item {
+    -fx-background-color: #21252B;
+    -fx-padding: 8px;
+}
+.check-box {
+    -fx-text-fill: #b7b7b7;
+}
+.check-box .box {
+    -fx-background-color: #3D414A;
+    -fx-background-radius: 0;
+}
+.label {
+    -fx-text-fill: #b7b7b7;
+}
+.button, .toggle-button {
+    -fx-background-color: #1B1D23;
+    -fx-background-radius: 0;
+    -fx-text-fill: #b7b7b7;
+    -fx-padding: 7px 10px;
+}
+.text-field, .combo-box, .color-picker {
+    -fx-text-fill: #b7b7b7;
+    -fx-color: #b7b7b7;
+    -fx-background-color: #1B1D23;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 5px 2px;
+}
+.text-field {
+    -fx-padding: 8px 13px;
+}
+.color-picker {
+    -fx-padding: 8px;
+}
+.color-picker .color-picker-label {
+    -fx-label-padding: -5px;
+}
+.combo-box-popup .list-view {
+    -fx-background-color: #1B1D23;
+}
+.combo-box .list-cell, .combo-box-popup .list-view .list-cell {
+    -fx-text-fill: #b7b7b7;
+    -fx-color: #b7b7b7;
+}
+.list-view {
+    -fx-background-color: #21252B;
+}
+.list-view .list-cell {
+    -fx-text-fill: #b7b7b7;
+    -fx-padding: 8px;
+}
+.list-view .list-cell:even, .list-view .list-cell:odd {
+    -fx-background-color: transparent;
+}
+.menu:hover, .menu:focused, .menu:selected, .menu-item:focused, .menu-item:selected, .menu-item:hover,
+.menu:showing, .list-view .list-cell:hover, .combo-box .list-cell:hover, .button:hover,
+.toggle-button:hover, .toggle-button:selected, .tab-pane .tab:hover, .tree-view .tree-cell:hover, .tree-view .tree-cell:selected  {
+    -fx-background-color: rgba(66, 74, 86, 0.5);
+    -fx-text-fill: white;
+}
+.list-view .list-cell:selected, .list-view .list-cell:focused {
+    -fx-background-color: #1B1D23;
+    -fx-text-fill: white;
+}
+.scroll-bar:horizontal,
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-radius: 5px;
+    -fx-background-color: #343D46;
+}
+.titled-pane {
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-insets: 0;
+    -fx-text-fill: #b7b7b7;
+}
+.titled-pane > .title {
+    -fx-font-weight: bold;
+    -fx-background-color: #21252B;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-insets: 0;
+    -fx-border-width: 1px 0 1px 0;
+    -fx-border-color: #181A1F;
+}
+.titled-pane > *.content  {
+    -fx-background-color: #21252B;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-insets: 0;
+    -fx-border-width: 0;
+}
+.titled-pane > .title > .arrow-button .arrow {
+    -fx-background-color: #3D414A;
+}
+.table-view {
+    -fx-background-color: transparent;
+}
+.tree-table-view {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: transparent;
+    -fx-table-header-border-color: transparent;
+}
+.tree-table-view .column-header,
+.tree-table-view .column-header .filler,
+.tree-table-view .column-header-background .filler {
+    -fx-background-color: #1B1D23;
+}
+.tree-table-row-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #b7b7b7;
+    -fx-table-cell-border-color: transparent;
+}
+.tree-table-cell {
+    -fx-text-fill: #b7b7b7;
+}
+.tab-pane .tab-header-area .tab-header-background, .dialog-pane .header-panel {
+    -fx-background-color: #1B1D23;
+}
+.tab-pane > .tab-header-area > .headers-region {
+    -fx-background-color: #21252B;
+}
+.tab-pane .tab {
+    -fx-background-color: #1B1D23;
+    -fx-background-radius: 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+.tab-pane .tab:selected, .tab-pane .tab:focused {
+    -fx-background-color: #21252B;
+    -fx-text-fill: white;
+}
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #b7b7b7;
+}
+.separator *.line {
+    -fx-border-width: 2px;
+    -fx-border-color: #3D414A;
+}
+
+.tree-view {
+    -fx-background-color: transparent;
+}
+.tree-view .tree-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #b7b7b7;
+}
+.progress-bar .bar {
+    -fx-padding: 2px;
+    -fx-background-insets: 0;
+    -fx-background-color: #3D414A;
+    -fx-box-border: #3D414A;
+    -fx-border-color: #3D414A;
+}
+.slider {
+    -fx-font-size: 12px;
+}
+.slider > .axis {
+    -fx-tick-label-font-size: 12px;
+    -fx-tick-label-fill: #b7b7b7;
+}
+.slider .track {
+    -fx-background-color: #3D414A;
+}
+.slider .thumb, .tool-bar {
+    -fx-background-color: #1B1D23;
+}
+.text-area {
+    text-area-background: #1B1D23;
+    -fx-text-fill: #b7b7b7;
+    -fx-background-color: #1B1D23;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}
+.text-area .content {
+    -fx-background-color: #1B1D23;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}
+.text-area *.text {
+    -fx-background-color: #1B1D23;
+}
+.scroll-pane {
+    -fx-background-color: #21252B;
+}
+.pagination-item-selected {
+    -fx-background-color: #3D414A;
+}
+.header {
+    -fx-font-size: 15px;
+    -fx-padding: 15px;
+}
+.no-padding {
+    -fx-padding: 0;
+}
+.text-center {
+    -fx-text-alignment: center;
+}
+.text-center *.text {
+    -fx-text-alignment: center;
+}
+.p-0 {
+    -fx-padding: 0;
+}
