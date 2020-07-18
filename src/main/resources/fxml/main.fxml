@@ -23,7 +23,7 @@
             <MenuItem fx:id="openMenuItem" mnemonicParsing="false" text="Open…" />
             <Menu mnemonicParsing="false" text="Open Recent" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="newMenuItem" mnemonicParsing="false" text="New" />
+            <MenuItem fx:id="newMenuItem" disable="true" mnemonicParsing="false" text="New" />
           </items>
         </Menu>
         <Menu mnemonicParsing="false" text="View">
