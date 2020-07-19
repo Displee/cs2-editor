@@ -1,8 +1,8 @@
 package dawn.cs2;
 
+import com.displee.io.impl.OutputBuffer;
 import dawn.cs2.ast.*;
 import dawn.cs2.instructions.*;
-import mgi.utilities.ByteBuffer;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -60,7 +60,7 @@ public class CS2Compiler {
             }
         }
 //        System.err.println("-----------------------------");
-        ByteBuffer output = new ByteBuffer(500000);
+        OutputBuffer output = new OutputBuffer(500000);
 //        if (function.getName() != null)
 //            output.writeString(function.getName());
 //          else
@@ -127,7 +127,7 @@ public class CS2Compiler {
         if (supportLongs)
             output.writeShort(argL);
         if (supportSwitch) {
-            long markSwitch = output.getPosition();
+            long markSwitch = output.getOffset();
             output.writeByte(switchCount);
             for (int addr = 0; addr < instructions.size(); addr++) {
                 AbstractInstruction instr = instructions.get(addr);
@@ -140,11 +140,9 @@ public class CS2Compiler {
                     }
                 }
             }
-            output.writeShort((short) (output.getPosition() - markSwitch));
+            output.writeShort((short) (output.getOffset() - markSwitch));
         }
-        byte[] data = new byte[output.getPosition()];
-        System.arraycopy(output.getBuffer(), 0, data, 0, output.getPosition());
-        return data;
+        return output.array();
 
     }
 

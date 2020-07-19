@@ -3,7 +3,6 @@ package dawn.cs2.unscramble;
 import dawn.cs2.CS2;
 import dawn.cs2.instructions.LongInstruction;
 import dawn.cs2.instructions.StringInstruction;
-import mgi.utilities.ByteBuffer;
 
 public class Instructions718 {
 //
@@ -2000,7 +1999,7 @@ public class Instructions718 {
 //        aClass394_5186 = new Instruction(359);
 //    }
 //
-//    void readOperand(ByteBuffer buffer, int ptr, Instruction instruction, CS2 cs2) {
+//    void readOperand(InputBuffer buffer, int ptr, Instruction instruction, CS2 cs2) {
 //        if (instruction == aClass394_4925) {
 //            readString(buffer, ptr, instruction, cs2);
 //        } else if (aClass394_4227 == instruction) {
@@ -2018,11 +2017,11 @@ public class Instructions718 {
 //        aClass394Array9675[i] = class394;
 //    }
 //
-//    void readString(ByteBuffer buffer, int ptr, Instruction instruction, CS2 cs2) {
+//    void readString(InputBuffer buffer, int ptr, Instruction instruction, CS2 cs2) {
 //        cs2.getInstructions()[(ptr * 2) + 1] = new StringInstruction(instruction.id, buffer.readString());
 //    }
 //
-//    void readLong(ByteBuffer buffer, int ptr, Instruction instruction, CS2 cs2) {
+//    void readLong(InputBuffer buffer, int ptr, Instruction instruction, CS2 cs2) {
 //        cs2.getInstructions()[(ptr * 2) + 1] = new LongInstruction(instruction.id, buffer.readLong());
 //    }
 //

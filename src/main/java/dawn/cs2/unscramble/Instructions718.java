@@ -3,7 +3,6 @@ package dawn.cs2.unscramble;
 import dawn.cs2.CS2;
 import dawn.cs2.instructions.LongInstruction;
 import dawn.cs2.instructions.StringInstruction;
-import mgi.utilities.ByteBuffer;
 
 public class Instructions718 {
 //

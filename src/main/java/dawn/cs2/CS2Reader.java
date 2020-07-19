@@ -1,7 +1,7 @@
 package dawn.cs2;
 
+import com.displee.io.impl.InputBuffer;
 import dawn.cs2.instructions.*;
-import mgi.utilities.ByteBuffer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,18 +34,18 @@ public class CS2Reader {
 
     @SuppressWarnings("unchecked")
     private CS2 readScript(int scriptID, byte[] data, Map<Integer, Integer> unscramble, boolean disableSwitches, boolean disableLongs) throws IOException {
-        ByteBuffer buffer = new ByteBuffer(data);
+        InputBuffer buffer = new InputBuffer(data);
 
         boolean hasSwitches = !disableSwitches && unscramble.containsValue(Opcodes.SWITCH); //old OSRS doesnt have switches
         boolean hasLongs = !disableLongs && unscramble.containsValue(Opcodes.PUSH_LONG); //old revisions don't have longs
 
         if (hasSwitches) {
-            buffer.setPosition(data.length - 2);
+            buffer.setOffset(data.length - 2);
         }
         int switchBlocksSize = hasSwitches ? buffer.readUnsignedShort() : 0;
 
         int codeBlockEnd = data.length - switchBlocksSize - (hasLongs ? 16 : 12) - (hasSwitches ? 2 : 0);
-        buffer.setPosition(codeBlockEnd);
+        buffer.setOffset(codeBlockEnd);
         int codeSize = buffer.readInt();
         int intLocalsCount = buffer.readUnsignedShort();
         int stringLocalsCount = buffer.readUnsignedShort();
@@ -60,7 +60,7 @@ public class CS2Reader {
             longArgsCount = buffer.readUnsignedShort();
         Map[] switches = null;
         if (hasSwitches) {
-            int switchesCount = buffer.readUByte();
+            int switchesCount = buffer.readUnsignedByte();
             switches = new HashMap[switchesCount];
             for (int i = 0; i < switchesCount; i++) {
                 int numCases = buffer.readUnsignedShort();
@@ -70,8 +70,8 @@ public class CS2Reader {
                 }
             }
         }
-        buffer.setPosition(0);
-        String scriptName = buffer.readNullString();
+        buffer.setOffset(0);
+        String scriptName = buffer.readStringNull();
 
         CS2Type[] args = new CS2Type[intArgsCount + stringArgsCount + longArgsCount];
         int write = 0;
@@ -85,7 +85,7 @@ public class CS2Reader {
         CS2 script = new CS2(scriptID, args, intLocalsCount, stringLocalsCount, longLocalsCount, intArgsCount, stringArgsCount, longArgsCount, codeSize);
 
         int writeOffset = 0;
-        while (buffer.getPosition() < codeBlockEnd) {
+        while (buffer.getOffset() < codeBlockEnd) {
             int opcode = buffer.readUnsignedShort();
             Integer n = unscramble.get(opcode);
             if (n == null) {
@@ -99,9 +99,9 @@ public class CS2Reader {
                 script.getInstructions()[(writeOffset * 2) + 1] = new LongInstruction(opcode, buffer.readLong());
             } else if (opcode == Opcodes.RETURN || opcode == Opcodes.POP_INT || opcode == Opcodes.POP_STRING) {
                 //TODO: this might aswell be booleaninstructions, but decompiler kind of expects them to be intinstructions right now
-                script.getInstructions()[(writeOffset * 2) + 1] = new IntInstruction(opcode, buffer.readUByte());
+                script.getInstructions()[(writeOffset * 2) + 1] = new IntInstruction(opcode, buffer.readUnsignedByte());
             } else if (opcode >= (hasLongs ? 150 : 100)) { // || opcode == 21 || opcode == 38 || opcode == 39)
-                script.getInstructions()[(writeOffset * 2) + 1] = new BooleanInstruction(opcode, buffer.readUByte() == 1);
+                script.getInstructions()[(writeOffset * 2) + 1] = new BooleanInstruction(opcode, buffer.readUnsignedByte() == 1);
             } else if (opcode == Opcodes.SWITCH) { // switch
                 Map block = switches[buffer.readInt()];
                 List<Integer> cases = new ArrayList<>(block.size());
