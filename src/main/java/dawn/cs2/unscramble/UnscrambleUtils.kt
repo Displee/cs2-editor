@@ -13,10 +13,10 @@ object UnscrambleUtils {
 			val master = opcodes[0].toInt()
 			val scrambled = opcodes[1].toInt()
 			if (scramble.put(master, scrambled) != null) {
-				throw RuntimeException("Bad config, duplicate scramble $master ->  ...")
+				//throw RuntimeException("Bad config, duplicate scramble $master ->  ...")
 			}
 			if (unscramble.put(scrambled, master) != null) {
-				throw RuntimeException("Bad config, duplicate scramble ... -> $scrambled")
+				//throw RuntimeException("Bad config, duplicate scramble ... -> $scrambled")
 			}
 		}
 	}

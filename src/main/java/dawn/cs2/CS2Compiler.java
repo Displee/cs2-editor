@@ -412,7 +412,7 @@ public class CS2Compiler {
                 }
                 //Arg null means it is fulfilled by another arg which returns multiple values
                 if (arg != null) {
-                    if (arg instanceof CallbackExpressionNode && ((CallbackExpressionNode) arg).call.info == null) {
+                    if (arg instanceof CallbackExpressionNode && (((CallbackExpressionNode) arg).call == null || ((CallbackExpressionNode) arg).call.info == null)) {
                         continue;
                     }
                     compileExpression(arg);
