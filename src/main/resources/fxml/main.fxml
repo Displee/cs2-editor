@@ -23,7 +23,9 @@
             <MenuItem fx:id="openMenuItem" mnemonicParsing="false" text="Open…" />
             <Menu mnemonicParsing="false" text="Open Recent" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="newMenuItem" disable="true" mnemonicParsing="false" text="New" />
+            <MenuItem fx:id="newMenuItem" disable="true" mnemonicParsing="false" text="New Script (Crtl + N)" />
+            <MenuItem fx:id="saveMenuItem" disable="true" mnemonicParsing="false" text="Save Script (Crtl + S)" />
+            <MenuItem fx:id="buildMenuItem" disable="true" mnemonicParsing="false" text="Build Script (Crtl + D)" />
           </items>
         </Menu>
         <Menu mnemonicParsing="false" text="View">

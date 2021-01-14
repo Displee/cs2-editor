@@ -48,6 +48,12 @@ class MainController : Initializable {
 	private lateinit var openMenuItem: MenuItem
 
 	@FXML
+	private lateinit var saveMenuItem: MenuItem
+
+	@FXML
+	private lateinit var buildMenuItem: MenuItem
+
+	@FXML
 	private lateinit var showAssemblyMenuItem: CheckMenuItem
 
 	@FXML
@@ -100,6 +106,12 @@ class MainController : Initializable {
 		openMenuItem.setOnAction {
 			openCache()
 		}
+		saveMenuItem.setOnAction {
+			compileScript()
+		}
+		buildMenuItem.setOnAction {
+			packScript()
+		}
 		showAssemblyMenuItem.setOnAction {
 			if (showAssemblyMenuItem.isSelected) {
 				rootPane.right = temporaryAssemblyPane
@@ -110,19 +122,7 @@ class MainController : Initializable {
 			}
 		}
 		newMenuItem.setOnAction {
-			val newId = cacheLibrary.index(SCRIPTS_INDEX).nextId()
-
-			val function = CS2ScriptParser.parse("void script_$newId() {\n\treturn;\n}", opcodesDatabase, scriptsDatabase)
-			val compiler = CS2Compiler(function, scriptConfiguration.scrambled, scriptConfiguration.disableSwitches, scriptConfiguration.disableLongs)
-			val compiled = compiler.compile(null) ?: throw Error("Failed to compile.")
-			cacheLibrary.put(SCRIPTS_INDEX, newId, compiled)
-
-			if (!cacheLibrary.index(SCRIPTS_INDEX).update()) {
-				Notification.error("Failed to create new script with id $newId.")
-			} else {
-				Notification.info("A new script has been created with id $newId.")
-				loadScripts()
-			}
+			newScript()
 		}
 		aboutMenuItem.setOnAction {
 			AboutWindow()
@@ -291,6 +291,12 @@ class MainController : Initializable {
 				if (m0.find()) {
 					Platform.runLater { codeArea.insertText(caretPosition, m0.group()) }
 				}
+			} else if (e.isShiftDown && e.code == KeyCode.TAB) {
+				if (codeArea.text.substring(codeArea.caretPosition - 1, codeArea.caretPosition) == "\t") {
+					codeArea.deletePreviousChar()
+				}
+			} else if (e.isControlDown &&  e.code == KeyCode.N) {
+				newScript()
 			}
 		}
 		codeArea.isEditable = editable
@@ -321,6 +327,8 @@ class MainController : Initializable {
 		Platform.runLater {
 			scriptList.isDisable = false
 			newMenuItem.isDisable = false
+			saveMenuItem.isDisable = false
+			buildMenuItem.isDisable = false
 		}
 	}
 
@@ -530,6 +538,22 @@ class MainController : Initializable {
 		}
 	}
 
+	private fun newScript() {
+		val newId = cacheLibrary.index(SCRIPTS_INDEX).nextId()
+
+		val function = CS2ScriptParser.parse("void script_$newId() {\n\treturn;\n}", opcodesDatabase, scriptsDatabase)
+		val compiler = CS2Compiler(function, scriptConfiguration.scrambled, scriptConfiguration.disableSwitches, scriptConfiguration.disableLongs)
+		val compiled = compiler.compile(null) ?: throw Error("Failed to compile.")
+		cacheLibrary.put(SCRIPTS_INDEX, newId, compiled)
+
+		if (!cacheLibrary.index(SCRIPTS_INDEX).update()) {
+			Notification.error("Failed to create new script with id $newId.")
+		} else {
+			Notification.info("A new script has been created with id $newId.")
+			loadScripts()
+		}
+	}
+
 	private fun packScript() {
 		val script = currentScript ?: return
 		val activeCodeArea = activeCodeArea()
@@ -578,6 +602,8 @@ class MainController : Initializable {
 		scriptList.items.clear()
 		scriptList.isDisable = true
 		newMenuItem.isDisable = true
+		saveMenuItem.isDisable = true
+		buildMenuItem.isDisable = true
 	}
 
 	private fun status(status: String) {
