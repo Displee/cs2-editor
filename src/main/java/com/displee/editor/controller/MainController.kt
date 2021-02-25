@@ -385,7 +385,7 @@ class MainController : Initializable {
 					val decompiler = CS2Decompiler(script, opcodesDatabase, scriptsDatabase)
 					try {
 						decompiler.decompile()
-					} catch (ex: Exception) {
+					} catch (ex: Throwable) {
 
 					}
 					val function = decompiler.function

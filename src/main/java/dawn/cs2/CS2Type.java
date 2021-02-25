@@ -145,9 +145,9 @@ public class CS2Type {
             return new NewColorNode(expr instanceof NewWidgetPointerNode ? ((NewWidgetPointerNode) expr).getExpression() : expr);
         if (type.equals(BOOLEAN) && expr instanceof IntExpressionNode) {
             int val = ((IntExpressionNode) expr).getData();
-            if (val > 1 || val < -1) {
+            /*if (val > 1 || val < -1) {
                 throw new DecompilerException("Cannot cast to boolean " + val);
-            }
+            }*/
             if (val == -1) {
                 System.err.println("warning null boolean");
                 return new NullableIntExpressionNode(-1);
