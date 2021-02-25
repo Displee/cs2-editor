@@ -3,6 +3,7 @@ package com.displee.editor.controller
 import com.displee.cache.CacheLibrary
 import com.displee.cache.ProgressListener
 import com.displee.editor.config.ScriptConfiguration
+import com.displee.editor.notifyChooseScriptId
 import com.displee.editor.ui.alert.Notification
 import com.displee.editor.ui.autocomplete.AutoCompleteItem
 import com.displee.editor.ui.autocomplete.AutoCompletePopup
@@ -93,7 +94,7 @@ class MainController : Initializable {
 
 	private var temporaryAssemblyPane: Node? = null
 
-	private lateinit var cacheLibrary: CacheLibrary
+	lateinit var cacheLibrary: CacheLibrary
 	private lateinit var scripts: IntArray
 
 	private lateinit var scriptConfiguration: ScriptConfiguration
@@ -103,6 +104,14 @@ class MainController : Initializable {
 	private var currentScript: CS2? = null
 
 	override fun initialize(location: URL?, resources: ResourceBundle?) {
+		rootPane.addEventHandler(KeyEvent.KEY_PRESSED) { e: KeyEvent ->
+			if (e.isControlDown && e.code == KeyCode.N) {
+				if (!this::cacheLibrary.isInitialized) {
+					return@addEventHandler
+				}
+				newScript(notifyChooseScriptId(cacheLibrary.index(SCRIPTS_INDEX).nextId()))
+			}
+		}
 		openMenuItem.setOnAction {
 			openCache()
 		}
@@ -122,7 +131,7 @@ class MainController : Initializable {
 			}
 		}
 		newMenuItem.setOnAction {
-			newScript()
+			newScript(notifyChooseScriptId(cacheLibrary.index(SCRIPTS_INDEX).nextId()))
 		}
 		aboutMenuItem.setOnAction {
 			AboutWindow()
@@ -295,8 +304,6 @@ class MainController : Initializable {
 				if (codeArea.text.substring(codeArea.caretPosition - 1, codeArea.caretPosition) == "\t") {
 					codeArea.deletePreviousChar()
 				}
-			} else if (e.isControlDown &&  e.code == KeyCode.N) {
-				newScript()
 			}
 		}
 		codeArea.isEditable = editable
@@ -352,7 +359,16 @@ class MainController : Initializable {
 		}
 		var configuration: ScriptConfiguration? = null
 		if (cacheLibrary.isOSRS()) {
-			configuration = ScriptConfiguration(179, "/cs2/opcode/database/osrs.ini", false, true)
+			val configurations = arrayOf(
+				ScriptConfiguration(154, "/cs2/opcode/database/osrs.ini", false, true),
+				ScriptConfiguration(176, "/cs2/opcode/database/osrs.ini", false, true),
+				ScriptConfiguration(179, "/cs2/opcode/database/osrs.ini", false, true)
+			)
+			for (i in configurations) {
+				if (testUnit(i)) {
+					configuration = i
+				}
+			}
 		} else {
 			val configurations = arrayOf(
 					//< 500
@@ -385,7 +401,7 @@ class MainController : Initializable {
 					val decompiler = CS2Decompiler(script, opcodesDatabase, scriptsDatabase)
 					try {
 						decompiler.decompile()
-					} catch (ex: Exception) {
+					} catch (ex: Throwable) {
 
 					}
 					val function = decompiler.function
@@ -538,9 +554,10 @@ class MainController : Initializable {
 		}
 	}
 
-	private fun newScript() {
-		val newId = cacheLibrary.index(SCRIPTS_INDEX).nextId()
-
+	private fun newScript(newId: Int?) {
+		if (newId == null) {
+			return
+		}
 		val function = CS2ScriptParser.parse("void script_$newId() {\n\treturn;\n}", opcodesDatabase, scriptsDatabase)
 		val compiler = CS2Compiler(function, scriptConfiguration.scrambled, scriptConfiguration.disableSwitches, scriptConfiguration.disableLongs)
 		val compiled = compiler.compile(null) ?: throw Error("Failed to compile.")

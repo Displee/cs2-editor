@@ -158,6 +158,9 @@
 .tree-table-cell {
     -fx-text-fill: #b7b7b7;
 }
+.dialog-pane {
+    -fx-background-color: #21252B;
+}
 .tab-pane .tab-header-area .tab-header-background, .dialog-pane .header-panel {
     -fx-background-color: #1B1D23;
 }
