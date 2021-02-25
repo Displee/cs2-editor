@@ -352,7 +352,16 @@ class MainController : Initializable {
 		}
 		var configuration: ScriptConfiguration? = null
 		if (cacheLibrary.isOSRS()) {
-			configuration = ScriptConfiguration(179, "/cs2/opcode/database/osrs.ini", false, true)
+			val configurations = arrayOf(
+				ScriptConfiguration(154, "/cs2/opcode/database/osrs.ini", false, true),
+				ScriptConfiguration(176, "/cs2/opcode/database/osrs.ini", false, true),
+				ScriptConfiguration(179, "/cs2/opcode/database/osrs.ini", false, true)
+			)
+			for (i in configurations) {
+				if (testUnit(i)) {
+					configuration = i
+				}
+			}
 		} else {
 			val configurations = arrayOf(
 					//< 500
