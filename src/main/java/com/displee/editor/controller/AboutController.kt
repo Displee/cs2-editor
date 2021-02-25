@@ -13,7 +13,7 @@ class AboutController : Initializable {
 
 	override fun initialize(location: URL?, resources: ResourceBundle?) {
 		textArea.text = """
-			Displee's CS2 editor 1.0
+			Displee's CS2 editor 1.1
 			
 			
 			This application has been created by Displee
