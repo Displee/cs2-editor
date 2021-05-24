@@ -216,9 +216,10 @@ public class FlowBlocksGenerator {
                             LinkedList<ExpressionNode> expressions = new LinkedList<>();
                             while (stack.getSize() > 0) {
                                 ExpressionNode expr = stack.pop();
-                                if (expr.getType() == CS2Type.UNKNOWN)
+                                if (expr.getType() == CS2Type.UNKNOWN) {
                                     throw new DecompilerException("Unknown return type");
-//                                assert !expr.getType().isStructure() : "no support yet for returning structs together with other values";
+                                }
+//                              assert !expr.getType().isStructure() : "no support yet for returning structs together with other values";
                                 expressions.addFirst(expr);
                             }
                             block.write(new ReturnNode(new ExpressionList(expressions)));
@@ -240,8 +241,9 @@ public class FlowBlocksGenerator {
                         stack.push(new BuildStringNode(exprs));
                     } else if (opcode == Opcodes.CALL_CS2) {
                         FunctionInfo info = decompiler.getScriptsDatabase().getInfo(intInstr.getConstant());
-                        if (info == null)
-                            throw new DecompilerException("No documentation for:" + instruction);
+                        if (info == null) {
+                            throw new DecompilerException("Function for opcode " + instruction.getOpcode() + " is missing.");
+                        }
                         analyzeActualArgOrder(info, stack.copy());
                         int ret = this.analyzeCall(info, block, stack, ptr, true, false, false, intInstr.getConstant(), false);
                         if (ret != -1)
@@ -303,6 +305,9 @@ public class FlowBlocksGenerator {
                         boolean dynamicArgTypes = false;
                         boolean dynamicResultType = false;
                         FunctionInfo info = decompiler.getOpcodesDatabase().getInfo(instruction.getOpcode());
+                        if (info == null) {
+                            throw new DecompilerException("Function for opcode " + instruction.getOpcode() + " is missing.");
+                        }
                         if ((opcode >= 1400 && opcode < 1499) || (opcode >= 2400 && opcode < 2499)) {
                             analyzeDelegate(stack, opcode);
                             dynamicArgTypes = true; //
@@ -317,9 +322,6 @@ public class FlowBlocksGenerator {
 //                                    break;
 //                                }
                         }
-                        if (info == null)
-                            throw new DecompilerException("No documentation for:" + instruction);
-
                         dynamicArgTypes |= opcode == 3400 || opcode == 3409 || opcode == 3412 || opcode == 3414; //datamap contains/lookup value checks
                         if (!dynamicArgTypes) {
                             analyzeActualArgOrder(info, stack.copy());
