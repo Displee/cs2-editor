@@ -16,7 +16,7 @@ plugins {
 }
 
 archivesBaseName = 'cs2-editor'
-version = '1.3'
+version = '1.4'
 
 repositories {
     jcenter()
