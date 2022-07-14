@@ -14,3 +14,4 @@ sources
 # Ignore Gradle build output directory
 build
 .idea
+paths.txt
