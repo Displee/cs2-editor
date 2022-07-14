@@ -90,7 +90,7 @@ public class CS2Reader {
             Integer n = unscramble.get(opcode);
             if (n == null) {
 //                n = opcode;
-                throw new DecompilerException("Unknown scrambling " + opcode);
+                throw new DecompilerException("Unknown scrambling " + opcode + " " + opcode);
             }
             opcode = n;
             if (opcode == Opcodes.PUSH_STRING) {
