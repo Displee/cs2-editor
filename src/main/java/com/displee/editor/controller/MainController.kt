@@ -1,5 +1,6 @@
 package com.displee.editor.controller
 
+import javafx.event.ActionEvent
 import com.displee.cache.CacheLibrary
 import com.displee.cache.ProgressListener
 import com.displee.editor.config.ScriptConfiguration
@@ -33,10 +34,6 @@ import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.LineNumberFactory
 import org.fxmisc.richtext.model.StyleSpans
 import org.fxmisc.richtext.model.StyleSpansBuilder
-import java.awt.Menu
-import java.awt.MenuItem
-import java.awt.SystemColor.menu
-import java.awt.TextField
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -145,6 +142,7 @@ class MainController : Initializable {
 				newScript(notifyChooseScriptId(cacheLibrary.index(SCRIPTS_INDEX).nextId()))
 			}
 		}
+
 		openMenuItem.setOnAction {
 			openCache()
 		}
