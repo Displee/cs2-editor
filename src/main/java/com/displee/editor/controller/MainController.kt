@@ -33,9 +33,14 @@ import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.LineNumberFactory
 import org.fxmisc.richtext.model.StyleSpans
 import org.fxmisc.richtext.model.StyleSpansBuilder
+import java.awt.Menu
+import java.awt.MenuItem
+import java.awt.SystemColor.menu
+import java.awt.TextField
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.lang.StringBuilder
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -47,6 +52,18 @@ class MainController : Initializable {
 
 	@FXML
 	private lateinit var openMenuItem: MenuItem
+
+	@FXML
+	private lateinit var openRecentPaths: Menu
+
+	@FXML
+	private lateinit var path1: MenuItem
+
+	@FXML
+	private lateinit var path2: MenuItem
+
+	@FXML
+	private lateinit var path3: MenuItem
 
 	@FXML
 	private lateinit var saveMenuItem: MenuItem
@@ -92,6 +109,7 @@ class MainController : Initializable {
 
 	private val cachedScripts = mutableMapOf<Int, String>()
 
+	private final val fileName = System.getProperty("user.dir") + "/paths.txt"
 	private var temporaryAssemblyPane: Node? = null
 
 	lateinit var cacheLibrary: CacheLibrary
@@ -104,6 +122,21 @@ class MainController : Initializable {
 	private var currentScript: CS2? = null
 
 	override fun initialize(location: URL?, resources: ResourceBundle?) {
+		var file = File(fileName)
+		if (!file.exists()) file.createNewFile()
+		else {
+			var readLines = file.readLines()
+			if (readLines != null && !readLines.isEmpty()) {
+				path1.text = readLines.get(0)
+				if (readLines.size > 1) {
+					path2.text = readLines.get(1)
+				}
+				if (readLines.size > 2) {
+					path3.text = readLines.get(2)
+				}
+			}
+		}
+
 		rootPane.addEventHandler(KeyEvent.KEY_PRESSED) { e: KeyEvent ->
 			if (e.isControlDown && e.code == KeyCode.N) {
 				if (!this::cacheLibrary.isInitialized) {
@@ -115,6 +148,13 @@ class MainController : Initializable {
 		openMenuItem.setOnAction {
 			openCache()
 		}
+
+		path1.setOnAction { openCacheFromRecentPaths(1) }
+
+		path2.setOnAction { openCacheFromRecentPaths(2) }
+
+		path3.setOnAction { openCacheFromRecentPaths(3) }
+
 		saveMenuItem.setOnAction {
 			compileScript()
 		}
@@ -208,12 +248,56 @@ class MainController : Initializable {
 		AutoCompleteUtils
 	}
 
+	private fun openCacheFromRecentPaths(lineNumber: Int) {
+		val fileName = System.getProperty("user.dir") + "/paths.txt"
+		var file = File(fileName)
+		if (file.exists()) {
+			if (file.readLines() == null || file.readLines().isEmpty()) {
+				Platform.runLater {
+					Notification.error("No recent paths saved, open a new cache")
+					clearCache()
+				}
+			} else {
+				openCache(File(file.readLines()[lineNumber-1]))
+			}
+		}
+	}
+
+	private fun shiftLines() {
+		if (path1.text.isEmpty()) return;
+		path3.text = path2.text
+		path2.text = path1.text
+	}
+
+	private fun savePaths() {
+		var file = File(fileName)
+		if (!file.exists()) file.createNewFile()
+		val string = StringBuilder()
+		string.append(path1.text).append("\n").append(path2.text).append("\n").append(path3.text)
+
+		file.writeText(string.toString())
+	}
+
 	private fun openCache(f: File? = null) {
 		var mehFile = f
 		if (mehFile == null) {
 			val chooser = DirectoryChooser()
 			mehFile = chooser.showDialog(mainWindow()) ?: return
+			shiftLines()
+			path1.text = mehFile!!.path
 		}
+		savePaths()
+//		val string = StringBuilder()
+//		if (file.readLines() != null && file.readLines().isNotEmpty()) {
+//			for ((index, readLine) in file.readLines().withIndex()) {
+//				string.append(readLine)
+//				if (index == 2) break;
+//				string.append("\n")
+//			}
+//			file.writeText(string.toString())
+//		}
+
+
 		scriptList.isDisable = true
 		GlobalScope.launch {
 			try {
@@ -348,13 +432,18 @@ class MainController : Initializable {
 				try {
 					CS2Reader.readCS2ScriptNewFormat(data, id, config.unscrambled, config.disableSwitches, config.disableLongs)
 				} catch(e: Throwable) {
-					error++
-					if (error >= 2) {
-						break
+					if (config.version == 179) {
+						println(e)
+						println("id $id")
+
 					}
+//					error++
+//					if (error >= 2) {
+//						break
+//					}
 				}
 			}
-			println("config: ${config.version} $error")
+//			println("config: ${config.version} $error")
 			error < 2
 		}
 		var configuration: ScriptConfiguration? = null
