@@ -262,7 +262,7 @@ public class FlowBlocksGenerator {
                         ExpressionNode value = stack.pop();
                         ExpressionNode index = CS2Type.cast(stack.pop(), CS2Type.INT);
                         block.write(new PopableNode(new ArrayStoreNode(intInstr.getConstant(), index, value)));
-                    } else if (opcode == 47) {
+                    } else if (opcode == 47 || opcode == 49) {
                         stack.push(new VariableLoadNode(GlobalVariable.VARC_STRING(intInstr.getConstant())));
                     } else if (opcode == 106) {
                         stack.push(new VariableLoadNode(GlobalVariable.find("CLAN", intInstr.getConstant(), CS2Type.INT)));

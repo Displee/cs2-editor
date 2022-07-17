@@ -102,7 +102,7 @@ public class GlobalVariable implements Variable {
                 op = Opcodes.LOAD_VARC;
                 break;
             case "STRING":
-                op = Opcodes.LOAD_VARCSTR;
+                op = Opcodes.LOAD_VARCSTR_NEW;
                 break;
             //These are READONLY, some are not even used
             case "CLANDEF_STRING115":
