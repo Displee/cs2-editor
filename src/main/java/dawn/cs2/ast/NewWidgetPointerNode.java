@@ -14,7 +14,7 @@ public class NewWidgetPointerNode extends ExpressionNode {
 
     @Override
     public CS2Type getType() {
-        return CS2Type.WIDGET_PTR;
+        return CS2Type.COMPONENT;
     }
 
     @Override

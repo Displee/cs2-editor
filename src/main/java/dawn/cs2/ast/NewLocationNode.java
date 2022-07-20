@@ -13,7 +13,7 @@ public class NewLocationNode extends ExpressionNode {
 
     @Override
     public CS2Type getType() {
-        return CS2Type.LOCATION;
+        return CS2Type.COORD;
     }
 
     @Override

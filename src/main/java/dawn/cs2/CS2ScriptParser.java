@@ -941,7 +941,7 @@ public class CS2ScriptParser {
                 return new PlaceholderValueNode(value, -2147483646, CS2Type.INT);
             case "CTX_WIDGET":
                 advance();
-                return new PlaceholderValueNode(value, -2147483645, CS2Type.WIDGET_PTR);
+                return new PlaceholderValueNode(value, -2147483645, CS2Type.COMPONENT);
             case "CTX_MENU_OPTION":
                 advance();
                 return new PlaceholderValueNode(value, -2147483644, CS2Type.INT);
@@ -950,7 +950,7 @@ public class CS2ScriptParser {
                 return new PlaceholderValueNode(value, -2147483643, CS2Type.INT);
             case "DRAG_WIDGET":
                 advance();
-                return new PlaceholderValueNode(value, -2147483642, CS2Type.WIDGET_PTR);
+                return new PlaceholderValueNode(value, -2147483642, CS2Type.COMPONENT);
             case "DRAG_WIDGET_CHILD":
                 advance();
                 return new PlaceholderValueNode(value, -2147483641, CS2Type.INT);

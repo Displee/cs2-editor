@@ -72,9 +72,9 @@ public class LocalVariable implements Variable {
         int type = getIdentifier() >> 16;
         int id = getIdentifier() & 0xffff;
         if (type == 0) {
-            return new IntInstruction(Opcodes.STORE_INT, id);
+            return new IntInstruction(Opcodes.POP_INT_LOCAL, id);
         } else if (type == 1) {
-            return new IntInstruction(Opcodes.STORE_STRING, id);
+            return new IntInstruction(Opcodes.POP_STRING_LOCAL, id);
         } else if (type == 2) {
             return new IntInstruction(Opcodes.STORE_LONG, id);
         }
@@ -87,9 +87,9 @@ public class LocalVariable implements Variable {
         int type = getIdentifier() >> 16;
         int id = getIdentifier() & 0xffff;
         if (type == 0) {
-            return new IntInstruction(Opcodes.LOAD_INT, id);
+            return new IntInstruction(Opcodes.PUSH_INT_LOCAL, id);
         } else if (type == 1) {
-            return new IntInstruction(Opcodes.LOAD_STRING, id);
+            return new IntInstruction(Opcodes.PUSH_STRING_LOCAL, id);
         } else if (type == 2) {
             return new IntInstruction(Opcodes.LOAD_LONG, id);
         }

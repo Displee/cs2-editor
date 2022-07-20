@@ -76,11 +76,11 @@ public class GlobalVariable implements Variable {
     public AbstractInstruction generateStoreInstruction() {
         switch (name) {
             case "VARP":
-                return new IntInstruction(Opcodes.STORE_VARP, idx);
+                return new IntInstruction(Opcodes.POP_VAR, idx);
             case "VARPBIT":
-                return new IntInstruction(Opcodes.STORE_VARPBIT, idx);
+                return new IntInstruction(Opcodes.POP_VARBIT, idx);
             case "VARC":
-                return new IntInstruction(Opcodes.STORE_VARC, idx);
+                return new IntInstruction(Opcodes.POP_VARC_INT, idx);
             case "STRING":
                 return new IntInstruction(Opcodes.STORE_VARCSTR, idx);
             default:
@@ -93,13 +93,13 @@ public class GlobalVariable implements Variable {
         int op = -1;
         switch (name) {
             case "VARP":
-                op = Opcodes.LOAD_VARP;
+                op = Opcodes.PUSH_VAR;
                 break;
             case "VARPBIT":
-                op = Opcodes.LOAD_VARPBIT;
+                op = Opcodes.PUSH_VARBIT;
                 break;
             case "VARC":
-                op = Opcodes.LOAD_VARC;
+                op = Opcodes.PUSH_VARC_INT;
                 break;
             case "STRING":
                 op = Opcodes.LOAD_VARCSTR_NEW;

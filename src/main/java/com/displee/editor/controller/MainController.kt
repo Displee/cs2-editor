@@ -1,6 +1,5 @@
 package com.displee.editor.controller
 
-import javafx.event.ActionEvent
 import com.displee.cache.CacheLibrary
 import com.displee.cache.ProgressListener
 import com.displee.editor.config.ScriptConfiguration
@@ -549,7 +548,7 @@ class MainController : Initializable {
 			}
 			var list: MutableList<AutoCompleteItem>? = AutoCompleteUtils.dynamicItems
 			if (FlowBlocksGenerator.isObjectOpcode(opcode) || FlowBlocksGenerator.isObjectWidgetOpcode(opcode)) {
-				list = AutoCompleteUtils.getObject(WIDGET_PTR, true)?.dynamicChildren
+				list = AutoCompleteUtils.getObject(COMPONENT, true)?.dynamicChildren
 			}
 			val name = split[1]
 			val returnTypes = if (split[2].contains("|")) {
@@ -736,11 +735,11 @@ class MainController : Initializable {
 				SPRITE,
 				MODEL,
 				MIDI,
-				DATAMAP,
+				ENUM,
 				ATTRIBUTEMAP,
 				CONTAINER,
-				WIDGET_PTR,
-				LOCATION,
+				COMPONENT,
+				COORD,
 				ITEM,
 				COLOR,
 				IDENTIKIT,

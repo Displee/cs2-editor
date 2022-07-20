@@ -44,7 +44,7 @@ public class SwitchInstruction extends AbstractInstruction {
         bld.append("switch { \r\n");
         for (int i = 0; i < cases.size(); i++) {
             bld.append("\tcase " + cases.get(i) + ": ");
-            bld.append("\t").append(Opcodes.getOpcodeName(Opcodes.GOTO)).append("\t").append(targets.get(i).toString()).append(" \r\n");
+            bld.append("\t").append(Opcodes.getOpcodeName(Opcodes.BRANCH)).append("\t").append(targets.get(i).toString()).append(" \r\n");
         }
         bld.append("}");
         return bld.toString();
