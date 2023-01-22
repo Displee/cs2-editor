@@ -50,6 +50,9 @@ public class Opcodes {
     public static final int EQ1 = 86;
     public static final int EQ0 = 87;
 
+    public static final int CC_SETONTIMER = 1408;
+
+    public static final int IF_SETONTIMER = 2408;
     public static FunctionDatabase opcodesDb = null;
 //    public static FunctionDatabase scriptsDb = null;
 

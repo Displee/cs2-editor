@@ -429,18 +429,12 @@ class MainController : Initializable {
 				try {
 					CS2Reader.readCS2ScriptNewFormat(data, id, config.unscrambled, config.disableSwitches, config.disableLongs)
 				} catch(e: Throwable) {
-					if (config.version == 179) {
-						println(e)
-						println("id $id")
-
+					error++
+					if (error >= 2) {
+						break
 					}
-//					error++
-//					if (error >= 2) {
-//						break
-//					}
 				}
 			}
-//			println("config: ${config.version} $error")
 			error < 2
 		}
 		var configuration: ScriptConfiguration? = null
@@ -573,6 +567,12 @@ class MainController : Initializable {
 			})
 			if (list != null && list.firstOrNull { it.name == name } == null) {
 				list.add(function)
+			}
+
+			if (list != null) {
+				run {
+					list.add(function);
+				}
 			}
 		}
 	}
