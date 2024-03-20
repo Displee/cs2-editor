@@ -12,6 +12,7 @@ buildscript {
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'org.openjfx.javafxplugin' version "0.0.9"
 }
 
 archivesBaseName = 'cs2-editor'
@@ -57,6 +58,10 @@ compileJava.options.encoding = 'UTF-8'
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+javafx {
+    modules = ["javafx.controls", "javafx.fxml"]
 }
 
 jar {
