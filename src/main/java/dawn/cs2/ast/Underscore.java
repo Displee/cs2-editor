@@ -43,9 +43,9 @@ public class Underscore implements Variable {
     @Override
     public AbstractInstruction generateStoreInstruction() {
         if (this == UNDERSCORE_I) {
-            return new BooleanInstruction(Opcodes.POP_INT, false);
+            return new BooleanInstruction(Opcodes.POP_INT_DISCARD, false);
         } else if (this == UNDERSCORE_S) {
-            return new BooleanInstruction(Opcodes.POP_STRING, false);
+            return new BooleanInstruction(Opcodes.POP_STRING_DISCARD, false);
         } else if (this == UNDERSCORE_L) {
             return new IntInstruction(Opcodes.POP_LONG, 0);
         } else {

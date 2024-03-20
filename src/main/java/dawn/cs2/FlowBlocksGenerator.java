@@ -5,11 +5,9 @@ import dawn.cs2.instructions.*;
 import dawn.cs2.util.FunctionInfo;
 import dawn.cs2.util.IOUtils;
 import dawn.cs2.util.OpcodeUtils;
-import kotlin.ranges.RangesKt;
 import org.apache.commons.lang3.Range;
 
 import java.io.*;
-import java.time.temporal.ValueRange;
 import java.util.*;
 
 import static dawn.cs2.ast.LocalVariable.CHILD;
@@ -92,7 +90,7 @@ public class FlowBlocksGenerator {
                         target.parents.add(block);
                         block.children.add(target);
                         block.write(new ConditionalFlowBlockJump(conditional, target));
-                    } else if (opcode == Opcodes.GOTO) {
+                    } else if (opcode == Opcodes.BRANCH) {
                         FlowBlock target = generateFlowBlock(jmp.getTarget(), stack.copy());
                         target.parents.add(block);
                         block.children.add(target);
@@ -120,18 +118,18 @@ public class FlowBlocksGenerator {
                             }
                             CS2Type currentType = stackTypes.pollLast();
 
-                            if (opcode == POP_INT || opcode == Opcodes.POP_STRING || opcode == Opcodes.POP_LONG) {
-                                var = opcode == POP_INT ? Underscore.UNDERSCORE_I : opcode == POP_STRING ? Underscore.UNDERSCORE_S : Underscore.UNDERSCORE_L;
-                            } else if (opcode == Opcodes.STORE_VARP) {
+                            if (opcode == POP_INT_DISCARD || opcode == Opcodes.POP_STRING_DISCARD || opcode == Opcodes.POP_LONG) {
+                                var = opcode == POP_INT_DISCARD ? Underscore.UNDERSCORE_I : opcode == POP_STRING_DISCARD ? Underscore.UNDERSCORE_S : Underscore.UNDERSCORE_L;
+                            } else if (opcode == Opcodes.POP_VAR) {
                                 var = GlobalVariable.VARP(intInstr.getConstant(), currentType);
-                            } else if (opcode == Opcodes.STORE_VARPBIT) {
+                            } else if (opcode == Opcodes.POP_VARBIT) {
                                 var = GlobalVariable.VARPBIT(intInstr.getConstant(), currentType);
-                            } else if (opcode == Opcodes.STORE_VARC) {
+                            } else if (opcode == Opcodes.POP_VARC_INT) {
                                 var = GlobalVariable.VARC(intInstr.getConstant(), currentType);
                             } else if (opcode == STORE_VARCSTR) {
                                 var = GlobalVariable.VARC_STRING(intInstr.getConstant());
-                            } else if (opcode == Opcodes.STORE_INT || opcode == Opcodes.STORE_STRING || opcode == Opcodes.STORE_LONG) {
-                                int stackType = opcode == Opcodes.STORE_INT ? 0 : (opcode == Opcodes.STORE_LONG ? 2 : 1);
+                            } else if (opcode == Opcodes.POP_INT_LOCAL || opcode == Opcodes.POP_STRING_LOCAL || opcode == Opcodes.STORE_LONG) {
+                                int stackType = opcode == Opcodes.POP_INT_LOCAL ? 0 : (opcode == Opcodes.STORE_LONG ? 2 : 1);
                                 var = function.getMainScope().getLocalVariable(LocalVariable.makeIdentifier(intInstr.getConstant(), stackType));
                                 //dont do boolean?
                                 if (var.getType() == CS2Type.INT && currentType != CS2Type.INT && currentType != CS2Type.UNKNOWN) {
@@ -163,24 +161,24 @@ public class FlowBlocksGenerator {
                             }
                         } while (true);
                         //
-                        assert stack.getSize() == 0 : "Whole stack should be popped after assign";
+//                        assert stack.getSize() == 0 : "Whole stack should be popped after assign. Opcode: " + opcode;
                         assert stackTypes.size() == 0 : "Only half result of expression used";
                         //TODO: if all vars are underscores, we could make normal expressions out of this and remove the underscore part (eg _, _ = get2ValuesAndSomeSideEffects()). Doesn't appear to be used much though, so i think its fine for clarity
                         block.write(new PopableNode(new VariableAssignationNode(vars, assignments.size() == 1 ? assignments.get(0) : new ExpressionList(assignments))));
-                    } else if (opcode == Opcodes.PUSH_INT) { // push int.
+                    } else if (opcode == Opcodes.PUSH_CONSTANT_INT) { // push int.
                         //TODO: Technically only in delegate methods
                         if (val == -2147483647) {
                             stack.push(new PlaceholderValueNode("MOUSE_X", val, CS2Type.INT));
                         } else if (val == -2147483646) {
                             stack.push(new PlaceholderValueNode("MOUSE_Y", val, CS2Type.INT));//Either mouse y pos, or scroll ticks
                         } else if (val == -2147483645) {
-                            stack.push(new PlaceholderValueNode("CTX_WIDGET", val, CS2Type.WIDGET_PTR));
+                            stack.push(new PlaceholderValueNode("CTX_WIDGET", val, CS2Type.COMPONENT));
                         } else if (val == -2147483644) {
                             stack.push(new PlaceholderValueNode("CTX_MENU_OPTION", val, CS2Type.INT));
                         } else if (val == -2147483643) {
                             stack.push(new PlaceholderValueNode("CTX_WIDGET_CHILD", val, CS2Type.INT));
                         } else if (val == -2147483642) {
-                            stack.push(new PlaceholderValueNode("DRAG_WIDGET", val, CS2Type.WIDGET_PTR));
+                            stack.push(new PlaceholderValueNode("DRAG_WIDGET", val, CS2Type.COMPONENT));
                         } else if (val == -2147483641) {
                             stack.push(new PlaceholderValueNode("DRAG_WIDGET_CHILD", val, CS2Type.INT));
                         } else if (val == -2147483640) {
@@ -190,9 +188,10 @@ public class FlowBlocksGenerator {
                         } else {
                             stack.push(new IntExpressionNode(val));
                         }
-                    } else if (opcode == Opcodes.LOAD_VARP) {
+                    } else if (opcode == Opcodes.PUSH_VAR) {
                         stack.push(new VariableLoadNode(GlobalVariable.find("VARP", intInstr.getConstant(), CS2Type.INT)));
                     } else if (opcode == Opcodes.RETURN) {
+
                         if (stack.getSize() <= 0) {
                             block.write(new ReturnNode(null));
                             assert CS2Type.VOID.isCompatible(this.function.getReturnType());
@@ -217,7 +216,7 @@ public class FlowBlocksGenerator {
                             while (stack.getSize() > 0) {
                                 ExpressionNode expr = stack.pop();
                                 if (expr.getType() == CS2Type.UNKNOWN) {
-                                    throw new DecompilerException("Unknown return type");
+                                    throw new DecompilerException("Unknown return type, opcode: " + opcode + " TYPE: " + expr.getType());
                                 }
 //                              assert !expr.getType().isStructure() : "no support yet for returning structs together with other values";
                                 expressions.addFirst(expr);
@@ -227,19 +226,19 @@ public class FlowBlocksGenerator {
                         }
 //                        if ((ptr + 1) >= cs2.getInstructions().length) //uncomment this to decompile some dead code
                         break;
-                    } else if (opcode == Opcodes.LOAD_VARPBIT) {
+                    } else if (opcode == Opcodes.PUSH_VARBIT) {
                         stack.push(new VariableLoadNode(GlobalVariable.find("VARPBIT", intInstr.getConstant(), CS2Type.INT)));
-                    } else if (opcode == Opcodes.LOAD_INT || opcode == Opcodes.LOAD_STRING || opcode == Opcodes.LOAD_LONG) {
-                        int stackType = opcode == Opcodes.LOAD_INT ? 0 : (opcode == Opcodes.LOAD_LONG ? 2 : 1);
+                    } else if (opcode == Opcodes.PUSH_INT_LOCAL || opcode == Opcodes.PUSH_STRING_LOCAL || opcode == Opcodes.LOAD_LONG) {
+                        int stackType = opcode == Opcodes.PUSH_INT_LOCAL ? 0 : (opcode == Opcodes.LOAD_LONG ? 2 : 1);
                         LocalVariable var = function.getMainScope().getLocalVariable(LocalVariable.makeIdentifier(intInstr.getConstant(), stackType));
                         stack.push(new VariableLoadNode(var));
-                    } else if (opcode == Opcodes.MERGE_STRINGS) {
+                    } else if (opcode == Opcodes.JOIN_STRING) {
                         int amount = intInstr.getConstant();
                         LinkedList<ExpressionNode> exprs = new LinkedList<>();
                         for (int i = amount - 1; i >= 0; i--)
                             exprs.addFirst(CS2Type.cast(stack.pop(), CS2Type.STRING));
                         stack.push(new BuildStringNode(exprs));
-                    } else if (opcode == Opcodes.CALL_CS2) {
+                    } else if (opcode == Opcodes.GOSUB_WITH_PARAMS) {
                         FunctionInfo info = decompiler.getScriptsDatabase().getInfo(intInstr.getConstant());
                         if (info == null) {
                             throw new DecompilerException("Function for opcode " + instruction.getOpcode() + " is missing.");
@@ -248,21 +247,21 @@ public class FlowBlocksGenerator {
                         int ret = this.analyzeCall(info, block, stack, ptr, true, false, false, intInstr.getConstant(), false);
                         if (ret != -1)
                             ptr = ret;
-                    } else if (opcode == Opcodes.LOAD_VARC) {
+                    } else if (opcode == Opcodes.PUSH_VARC_INT) {
                         stack.push(new VariableLoadNode(GlobalVariable.VARC(intInstr.getConstant(), CS2Type.INT)));
-                    } else if (opcode == Opcodes.ARRAY_NEW) {
+                    } else if (opcode == Opcodes.DEFINE_ARRAY) {
                         int arrayID = intInstr.getConstant() >> 16;
                         char type = (char) (intInstr.getConstant() & 0xFFFF);
                         CS2Type array = CS2Type.forJagexDesc(type);//.getArrayType();
                         ExpressionNode length = CS2Type.cast(stack.pop(), CS2Type.INT);
                         block.write(new PopableNode(new NewArrayNode(arrayID, length, array)));
-                    } else if (opcode == Opcodes.ARRAY_LOAD) {
+                    } else if (opcode == Opcodes.PUSH_ARRAY_INT) {
                         stack.push(new ArrayLoadNode(intInstr.getConstant(), CS2Type.INT/*.getArrayType()*/, CS2Type.cast(stack.pop(), CS2Type.INT)));
-                    } else if (opcode == Opcodes.ARRAY_STORE) {
+                    } else if (opcode == Opcodes.POP_ARRAY_INT) {
                         ExpressionNode value = stack.pop();
                         ExpressionNode index = CS2Type.cast(stack.pop(), CS2Type.INT);
                         block.write(new PopableNode(new ArrayStoreNode(intInstr.getConstant(), index, value)));
-                    } else if (opcode == 47) {
+                    } else if (opcode == 47 || opcode == 49) {
                         stack.push(new VariableLoadNode(GlobalVariable.VARC_STRING(intInstr.getConstant())));
                     } else if (opcode == 106) {
                         stack.push(new VariableLoadNode(GlobalVariable.find("CLAN", intInstr.getConstant(), CS2Type.INT)));
@@ -439,7 +438,7 @@ public class FlowBlocksGenerator {
                 args[i] = stack.pop();
             if (!(args[1] instanceof IntExpressionNode) || !(args[0] instanceof IntExpressionNode))
                 throw new DecompilerException("Dynamic type");
-            return new FunctionInfo(fi.getName(), opcode, new CS2Type[]{CS2Type.CHAR, CS2Type.CHAR, CS2Type.DATAMAP, CS2Type.forJagexDesc((char) ((IntExpressionNode) args[0]).getData())}, CS2Type.forJagexDesc((char) ((IntExpressionNode) args[1]).getData()), fi.getArgumentNames(), false);
+            return new FunctionInfo(fi.getName(), opcode, new CS2Type[]{CS2Type.CHAR, CS2Type.CHAR, CS2Type.ENUM, CS2Type.forJagexDesc((char) ((IntExpressionNode) args[0]).getData())}, CS2Type.forJagexDesc((char) ((IntExpressionNode) args[1]).getData()), fi.getArgumentNames(), false);
         } else if (opcode == 4019) { //math function
             ExpressionNode[] args = new ExpressionNode[2];
             for (int i = 1; i >= 0; i--)

@@ -12,6 +12,7 @@ buildscript {
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
+    id 'application'
 }
 
 archivesBaseName = 'cs2-editor'
@@ -32,6 +33,8 @@ compileTestKotlin {
         jvmTarget = "1.8"
     }
 }
+
+mainClassName = 'com.displee.editor.Editor'
 
 dependencies {
     implementation fileTree(dir: 'lib', include: '*.jar')

@@ -169,10 +169,10 @@ public class CS2Compiler {
                 if (supportEq01) {
                     instructions.add(new JumpInstruction(Opcodes.EQ1, ifLabel));
                 } else {
-                    instructions.add(new IntInstruction(Opcodes.PUSH_INT, 1));
-                    instructions.add(new JumpInstruction(Opcodes.INT_EQ, ifLabel));
+                    instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, 1));
+                    instructions.add(new JumpInstruction(Opcodes.BRANCH_EQUALS, ifLabel));
                 }
-                instructions.add(new JumpInstruction(Opcodes.GOTO, i.hasElseScope() ? elseLabel : afterIf));
+                instructions.add(new JumpInstruction(Opcodes.BRANCH, i.hasElseScope() ? elseLabel : afterIf));
             }
 
             //For IF and ELSE scopes
@@ -187,7 +187,7 @@ public class CS2Compiler {
                 instructions.add(elseLabel);
                 //ELSE BODY
                 compileNode(i.elseScope);
-                instructions.add(new JumpInstruction(Opcodes.GOTO, afterIf));
+                instructions.add(new JumpInstruction(Opcodes.BRANCH, afterIf));
             }
 
             instructions.add(ifLabel);
@@ -207,14 +207,14 @@ public class CS2Compiler {
                 if (supportEq01) {
                     instructions.add(new JumpInstruction(Opcodes.EQ1, bodyLabel));
                 } else {
-                    instructions.add(new IntInstruction(Opcodes.PUSH_INT, 1));
-                    instructions.add(new JumpInstruction(Opcodes.INT_EQ, bodyLabel));
+                    instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, 1));
+                    instructions.add(new JumpInstruction(Opcodes.BRANCH_EQUALS, bodyLabel));
                 }
-                instructions.add(new JumpInstruction(Opcodes.GOTO, afterWhile));
+                instructions.add(new JumpInstruction(Opcodes.BRANCH, afterWhile));
             }
             instructions.add(bodyLabel);
             compileNode(loop.getScope());
-            instructions.add(new JumpInstruction(Opcodes.GOTO, conditionLabel));
+            instructions.add(new JumpInstruction(Opcodes.BRANCH, conditionLabel));
             instructions.add(afterWhile);
         } else if (node instanceof SwitchNode) {
             if (!supportSwitch) {
@@ -232,7 +232,7 @@ public class CS2Compiler {
 
             SwitchInstruction instr = new SwitchInstruction(Opcodes.SWITCH, cases, labels);
             instructions.add(instr);
-            instructions.add(new JumpInstruction(Opcodes.GOTO, defCase));
+            instructions.add(new JumpInstruction(Opcodes.BRANCH, defCase));
 
             while ((c = sw.getScope().read()) != null) {
                 if (c instanceof CaseAnnotation) {
@@ -253,18 +253,18 @@ public class CS2Compiler {
                         caseEntry = null;
                     }
                     if (c instanceof BreakNode) {
-                        instructions.add(new JumpInstruction(Opcodes.GOTO, afterSwitch));
+                        instructions.add(new JumpInstruction(Opcodes.BRANCH, afterSwitch));
                     } else {
                         compileNode(c);
                     }
                 }
             }
             instr.sort();
-            instructions.add(new JumpInstruction(Opcodes.GOTO, afterSwitch)); //incase last case didnt have a break. always jump to afterswitch TODO: probably remove this?? doesnt seem correct (fallthrough to default case??)
+            instructions.add(new JumpInstruction(Opcodes.BRANCH, afterSwitch)); //incase last case didnt have a break. always jump to afterswitch TODO: probably remove this?? doesnt seem correct (fallthrough to default case??)
             if (defCase != null) {
                 //If there was no default case, insert the label anyway (we already made the jump), it will be merged with afterswitch label in optimizer
                 instructions.add(defCase);
-                instructions.add(new JumpInstruction(Opcodes.GOTO, afterSwitch));
+                instructions.add(new JumpInstruction(Opcodes.BRANCH, afterSwitch));
             }
             instructions.add(afterSwitch);
         } else {
@@ -290,20 +290,20 @@ public class CS2Compiler {
                     if (supportEq01) {
                         instructions.add(new JumpInstruction(Opcodes.EQ1, ifTrue));
                     } else {
-                        instructions.add(new IntInstruction(Opcodes.PUSH_INT, 1));
-                        instructions.add(new JumpInstruction(Opcodes.INT_EQ, ifTrue));
+                        instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, 1));
+                        instructions.add(new JumpInstruction(Opcodes.BRANCH_EQUALS, ifTrue));
                     }
-                    instructions.add(new JumpInstruction(Opcodes.GOTO, ifFalse));
+                    instructions.add(new JumpInstruction(Opcodes.BRANCH, ifFalse));
                 }
                 instructions.add(secondaryCondition);
                 if (!compileConditionalJmp(c.getRight(), ifJump, elseJump)) {
                     if (supportEq01) {
                         instructions.add(new JumpInstruction(Opcodes.EQ1, ifJump));
                     } else {
-                        instructions.add(new IntInstruction(Opcodes.PUSH_INT, 1));
-                        instructions.add(new JumpInstruction(Opcodes.INT_EQ, ifJump));
+                        instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, 1));
+                        instructions.add(new JumpInstruction(Opcodes.BRANCH_EQUALS, ifJump));
                     }
-                    instructions.add(new JumpInstruction(Opcodes.GOTO, elseJump));
+                    instructions.add(new JumpInstruction(Opcodes.BRANCH, elseJump));
                 }
                 return true;
             }
@@ -323,28 +323,28 @@ public class CS2Compiler {
             int op = -1;
             switch (c.conditional) {
                 case NEQ:
-                    op = longInstr ? Opcodes.LONG_NE : Opcodes.INT_NE;
+                    op = longInstr ? Opcodes.LONG_NE : Opcodes.BRANCH_NOT;
                     break;
                 case EQ:
-                    op = longInstr ? Opcodes.LONG_EQ : Opcodes.INT_EQ;
+                    op = longInstr ? Opcodes.LONG_EQ : Opcodes.BRANCH_EQUALS;
                     break;
                 case GT:
-                    op = longInstr ? Opcodes.LONG_GT : Opcodes.INT_GT;
+                    op = longInstr ? Opcodes.LONG_GT : Opcodes.BRANCH_GREATER_THAN;
                     break;
                 case LT:
-                    op = longInstr ? Opcodes.LONG_LT : Opcodes.INT_LT;
+                    op = longInstr ? Opcodes.LONG_LT : Opcodes.BRANCH_LESS_THAN;
                     break;
                 case GE:
-                    op = longInstr ? Opcodes.LONG_GE : Opcodes.INT_GE;
+                    op = longInstr ? Opcodes.LONG_GE : Opcodes.BRANCH_GREATER_THAN_OR_EQUALS;
                     break;
                 case LE:
-                    op = longInstr ? Opcodes.LONG_LE : Opcodes.INT_LE;
+                    op = longInstr ? Opcodes.LONG_LE : Opcodes.BRANCH_LESS_THAN_OR_EQUALS;
                     break;
                 default:
                     throw new DecompilerException("unknown conditional op " + c.conditional);
             }
             instructions.add(new JumpInstruction(op, ifJump));
-            instructions.add(new JumpInstruction(Opcodes.GOTO, elseJump));
+            instructions.add(new JumpInstruction(Opcodes.BRANCH, elseJump));
             return true;
         } else {
             if (expr instanceof BooleanConditionalExpressionNode) {
@@ -358,10 +358,10 @@ public class CS2Compiler {
                         if (supportEq01) {
                             instructions.add(new JumpInstruction(Opcodes.EQ1, elseJump));
                         } else {
-                            instructions.add(new IntInstruction(Opcodes.PUSH_INT, 1));
-                            instructions.add(new JumpInstruction(Opcodes.INT_EQ, elseJump));
+                            instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, 1));
+                            instructions.add(new JumpInstruction(Opcodes.BRANCH_EQUALS, elseJump));
                         }
-                        instructions.add(new JumpInstruction(Opcodes.GOTO, ifJump));
+                        instructions.add(new JumpInstruction(Opcodes.BRANCH, ifJump));
                     }
                 } else {
                     if (!compileConditionalJmp(bool.getCondition(), ifJump, elseJump)) {
@@ -369,10 +369,10 @@ public class CS2Compiler {
                         if (supportEq01) {
                             instructions.add(new JumpInstruction(Opcodes.EQ1, ifJump));
                         } else {
-                            instructions.add(new IntInstruction(Opcodes.PUSH_INT, 1));
-                            instructions.add(new JumpInstruction(Opcodes.INT_EQ, ifJump));
+                            instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, 1));
+                            instructions.add(new JumpInstruction(Opcodes.BRANCH_EQUALS, ifJump));
                         }
-                        instructions.add(new JumpInstruction(Opcodes.GOTO, elseJump));
+                        instructions.add(new JumpInstruction(Opcodes.BRANCH, elseJump));
                     }
                 }
                 return true;
@@ -419,7 +419,7 @@ public class CS2Compiler {
                 }
             }
             if (call.info.isScript) {
-                instructions.add(new IntInstruction(Opcodes.CALL_CS2, op));
+                instructions.add(new IntInstruction(Opcodes.GOSUB_WITH_PARAMS, op));
             } else {
                 instructions.add(new BooleanInstruction(op, constant));
             }
@@ -428,9 +428,9 @@ public class CS2Compiler {
                 for (int i = composite.size() - 1; i >= 0; i--) {
                     CS2Type ret = composite.get(i);
                     if (ret.isCompatible(CS2Type.INT)) {
-                        instructions.add(new BooleanInstruction(Opcodes.POP_INT, false));
+                        instructions.add(new BooleanInstruction(Opcodes.POP_INT_DISCARD, false));
                     } else if (ret.isCompatible(CS2Type.STRING)) {
-                        instructions.add(new BooleanInstruction(Opcodes.POP_STRING, false));
+                        instructions.add(new BooleanInstruction(Opcodes.POP_STRING_DISCARD, false));
                     } else if (ret.isCompatible(CS2Type.LONG)) {
                         instructions.add(new IntInstruction(Opcodes.POP_LONG, 0));
                     }
@@ -441,9 +441,9 @@ public class CS2Compiler {
             CallbackExpressionNode callback = (CallbackExpressionNode) expression;
             StringBuilder types = new StringBuilder();
             if (callback.call == null) {
-                instructions.add(new IntInstruction(Opcodes.PUSH_INT, -1));
+                instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, -1));
             } else {
-                instructions.add(new IntInstruction(Opcodes.PUSH_INT, callback.call.info.id));
+                instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, callback.call.info.id));
                 for (ExpressionNode arg : callback.call.arguments) {
                     compileExpression(arg);
                     //Multiple return value call might be used as an argument
@@ -454,11 +454,11 @@ public class CS2Compiler {
             }
             if (callback.trigger != null) {
                 compileExpression(callback.trigger);
-                instructions.add(new IntInstruction(Opcodes.PUSH_INT, callback.trigger.arguments.size()));
+                instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, callback.trigger.arguments.size()));
                 types.append("Y");
             }
 
-            instructions.add(new StringInstruction(Opcodes.PUSH_STRING, types.toString()));
+            instructions.add(new StringInstruction(Opcodes.PUSH_CONSTANT_STRING, types.toString()));
         } else if (expression instanceof ExpressionList) {
 //            assert !pop : "Not a statement " + expression;
             for (ExpressionNode sub : ((ExpressionList) expression).arguments) {
@@ -483,7 +483,7 @@ public class CS2Compiler {
             }
         } else if (expression instanceof PlaceholderValueNode) {
             assert !pop : "Not a statement " + expression;
-            instructions.add(new IntInstruction(Opcodes.PUSH_INT, ((PlaceholderValueNode) expression).magic));
+            instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, ((PlaceholderValueNode) expression).magic));
         } else if (expression instanceof NewWidgetPointerNode) {
             assert !pop : "Not a statement " + expression;
             NewWidgetPointerNode w = (NewWidgetPointerNode) expression;
@@ -499,7 +499,7 @@ public class CS2Compiler {
         } else if (expression instanceof CharExpressionNode) {
             assert !pop : "Not a statement " + expression;
             CharExpressionNode c = (CharExpressionNode) expression;
-            instructions.add(new IntInstruction(Opcodes.PUSH_INT, c.getData()));
+            instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, c.getData()));
         } else if (expression instanceof CastNode) {
             assert !pop : "Not a statement " + expression;
             CastNode c = (CastNode) expression;
@@ -507,19 +507,19 @@ public class CS2Compiler {
             compileExpression(c.getExpression());
         } else if (expression instanceof IntExpressionNode) {
             assert !pop : "Not a statement " + expression;
-            instructions.add(new IntInstruction(Opcodes.PUSH_INT, ((IntExpressionNode) expression).getData()));
+            instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, ((IntExpressionNode) expression).getData()));
         } else if (expression instanceof LongExpressionNode) {
             assert !pop : "Not a statement " + expression;
             instructions.add(new LongInstruction(Opcodes.PUSH_LONG, ((LongExpressionNode) expression).getData()));
         } else if (expression instanceof NullableIntExpressionNode) {
             assert !pop : "Not a statement " + expression;
-            instructions.add(new IntInstruction(Opcodes.PUSH_INT, ((NullableIntExpressionNode) expression).getData()));
+            instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, ((NullableIntExpressionNode) expression).getData()));
         } else if (expression instanceof BooleanExpressionNode) {
             assert !pop : "Not a statement " + expression;
-            instructions.add(new IntInstruction(Opcodes.PUSH_INT, ((BooleanExpressionNode) expression).getData() ? 1 : 0));
+            instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, ((BooleanExpressionNode) expression).getData() ? 1 : 0));
         } else if (expression instanceof StringExpressionNode) {
             assert !pop : "Not a statement " + expression;
-            instructions.add(new StringInstruction(Opcodes.PUSH_STRING, ((StringExpressionNode) expression).getData()));
+            instructions.add(new StringInstruction(Opcodes.PUSH_CONSTANT_STRING, ((StringExpressionNode) expression).getData()));
         } else if (expression instanceof BuildStringNode) {
             assert !pop : "Not a statement " + expression;
             //TODO: If multiple literals, we can just merge them at compile time this happens a lot because all tags (<br> <col>) appear in seperate strings (they have some special syntax for it i guess)
@@ -527,7 +527,7 @@ public class CS2Compiler {
             for (ExpressionNode n : build.arguments) {
                 compileExpression(n);
             }
-            instructions.add(new IntInstruction(Opcodes.MERGE_STRINGS, build.arguments.size()));
+            instructions.add(new IntInstruction(Opcodes.JOIN_STRING, build.arguments.size()));
         } else if (expression instanceof VariableLoadNode) {
             assert !pop : "Not a statement " + expression;
             instructions.add(((VariableLoadNode) expression).getVariable().generateLoadInstruction());
@@ -548,18 +548,18 @@ public class CS2Compiler {
             assert pop;
             NewArrayNode init = (NewArrayNode) expression;
             compileExpression(init.getExpression());
-            instructions.add(new IntInstruction(Opcodes.ARRAY_NEW, init.arrayId << 16 | init.getType().charDesc));
+            instructions.add(new IntInstruction(Opcodes.DEFINE_ARRAY, init.arrayId << 16 | init.getType().charDesc));
         } else if (expression instanceof ArrayStoreNode) {
             assert pop;
             ArrayStoreNode store = (ArrayStoreNode) expression;
             compileExpression(store.getIndex());
             compileExpression(store.getValue());
-            instructions.add(new IntInstruction(Opcodes.ARRAY_STORE, store.arrayId));
+            instructions.add(new IntInstruction(Opcodes.POP_ARRAY_INT, store.arrayId));
         } else if (expression instanceof ArrayLoadNode) {
             assert !pop : "Not a statement " + expression;
             ArrayLoadNode load = (ArrayLoadNode) expression;
             compileExpression(load.getIndex());
-            instructions.add(new IntInstruction(Opcodes.ARRAY_LOAD, load.arrayId));
+            instructions.add(new IntInstruction(Opcodes.PUSH_ARRAY_INT, load.arrayId));
         } else if (expression instanceof ConditionalExpressionNode) {
             assert !pop : "Not a statement " + expression;
             //Compile a conditional expression. But leave the result on the stack rather than making a jump based on the result
@@ -570,10 +570,10 @@ public class CS2Compiler {
             if (compileConditionalJmp(expression, push1, push0)) {
                 //It did have to jump. push results back onto the stack
                 instructions.add(push1);
-                instructions.add(new IntInstruction(Opcodes.PUSH_INT, 1));
-                instructions.add(new JumpInstruction(Opcodes.GOTO, merge));
+                instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, 1));
+                instructions.add(new JumpInstruction(Opcodes.BRANCH, merge));
                 instructions.add(push0);
-                instructions.add(new IntInstruction(Opcodes.PUSH_INT, 0));
+                instructions.add(new IntInstruction(Opcodes.PUSH_CONSTANT_INT, 0));
                 //(flows to merge)
                 instructions.add(merge);
             }
@@ -597,14 +597,14 @@ public class CS2Compiler {
                         continue;
                     }
                     //Remove label if instruction after label is GOTO. Rewrite all jumps to this label to the GOTO target
-                    if ((next instanceof JumpInstruction) && next.getOpcode() == Opcodes.GOTO) {
+                    if ((next instanceof JumpInstruction) && next.getOpcode() == Opcodes.BRANCH) {
                         rewriteJumps((Label) instr, ((JumpInstruction) next).getTarget());
                         instructions.remove(instr);
                         continue;
                     }
                 }
                 //Remove GOTO if next instruction is that label
-                if (instr instanceof JumpInstruction && instr.getOpcode() == Opcodes.GOTO) {
+                if (instr instanceof JumpInstruction && instr.getOpcode() == Opcodes.BRANCH) {
                     AbstractInstruction next = instructions.get(i + 1);
                     if (next instanceof Label && ((JumpInstruction) instr).getTarget() == next) {
                         instructions.remove(instr);
@@ -618,7 +618,7 @@ public class CS2Compiler {
                     int opposite = Opcodes.oppositeJump(instr.getOpcode());
                     if (instr instanceof JumpInstruction && opposite != -1) {
                         AbstractInstruction next = instructions.get(i + 1);
-                        if (next instanceof JumpInstruction && next.getOpcode() == Opcodes.GOTO) {
+                        if (next instanceof JumpInstruction && next.getOpcode() == Opcodes.BRANCH) {
                             AbstractInstruction nn = instructions.get(i + 2);
                             if (nn instanceof Label && ((JumpInstruction) instr).getTarget() == nn) {
                                 instr.setOpcode(opposite);
@@ -631,9 +631,9 @@ public class CS2Compiler {
                 }
                 if (supportEq01) {
                     //change push int 0/1 INT_EQ to EQ0/1 without push
-                    if (instr instanceof IntInstruction && instr.getOpcode() == Opcodes.PUSH_INT) {
+                    if (instr instanceof IntInstruction && instr.getOpcode() == Opcodes.PUSH_CONSTANT_INT) {
                         AbstractInstruction next = instructions.get(i + 1);
-                        if (next instanceof JumpInstruction && next.getOpcode() == Opcodes.INT_EQ) {
+                        if (next instanceof JumpInstruction && next.getOpcode() == Opcodes.BRANCH_EQUALS) {
                             if (((IntInstruction) instr).getConstant() == 0) {
                                 instructions.remove(instr);
                                 next.setOpcode(Opcodes.EQ0);

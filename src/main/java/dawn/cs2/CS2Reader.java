@@ -90,14 +90,14 @@ public class CS2Reader {
             Integer n = unscramble.get(opcode);
             if (n == null) {
 //                n = opcode;
-                throw new DecompilerException("Unknown scrambling " + opcode);
+                throw new DecompilerException("Unknown scrambling " + opcode + " " + opcode);
             }
             opcode = n;
-            if (opcode == Opcodes.PUSH_STRING) {
+            if (opcode == Opcodes.PUSH_CONSTANT_STRING) {
                 script.getInstructions()[(writeOffset * 2) + 1] = new StringInstruction(opcode, buffer.readString());
             } else if (opcode == Opcodes.PUSH_LONG) {
                 script.getInstructions()[(writeOffset * 2) + 1] = new LongInstruction(opcode, buffer.readLong());
-            } else if (opcode == Opcodes.RETURN || opcode == Opcodes.POP_INT || opcode == Opcodes.POP_STRING) {
+            } else if (opcode == Opcodes.RETURN || opcode == Opcodes.POP_INT_DISCARD || opcode == Opcodes.POP_STRING_DISCARD) {
                 //TODO: this might aswell be booleaninstructions, but decompiler kind of expects them to be intinstructions right now
                 script.getInstructions()[(writeOffset * 2) + 1] = new IntInstruction(opcode, buffer.readUnsignedByte());
             } else if (opcode >= (hasLongs ? 150 : 100)) { // || opcode == 21 || opcode == 38 || opcode == 39)
@@ -119,7 +119,7 @@ public class CS2Reader {
                 script.getInstructions()[(writeOffset * 2) + 1] = new SwitchInstruction(opcode, cases, targets);
                 if (script.getInstructions()[writeOffset * 2 + 2] == null)
                     script.getInstructions()[(writeOffset * 2) + 2] = new Label(); //always insert label after switch
-            } else if (opcode == Opcodes.GOTO || opcode == Opcodes.INT_NE || opcode == Opcodes.INT_EQ || opcode == Opcodes.INT_LT || opcode == Opcodes.INT_GT || opcode == Opcodes.INT_LE || opcode == Opcodes.INT_GE || opcode == Opcodes.LONG_NE || opcode == Opcodes.LONG_EQ || opcode == Opcodes.LONG_LT || opcode == Opcodes.LONG_GT || opcode == Opcodes.LONG_LE || opcode == Opcodes.LONG_GE || opcode == Opcodes.EQ1 || opcode == Opcodes.EQ0) {
+            } else if (opcode == Opcodes.BRANCH || opcode == Opcodes.BRANCH_NOT || opcode == Opcodes.BRANCH_EQUALS || opcode == Opcodes.BRANCH_LESS_THAN || opcode == Opcodes.BRANCH_GREATER_THAN || opcode == Opcodes.BRANCH_LESS_THAN_OR_EQUALS || opcode == Opcodes.BRANCH_GREATER_THAN_OR_EQUALS || opcode == Opcodes.LONG_NE || opcode == Opcodes.LONG_EQ || opcode == Opcodes.LONG_LT || opcode == Opcodes.LONG_GT || opcode == Opcodes.LONG_LE || opcode == Opcodes.LONG_GE || opcode == Opcodes.EQ1 || opcode == Opcodes.EQ0) {
                 int fullAddr = writeOffset + buffer.readInt() + 1;
                 if (script.getInstructions()[fullAddr * 2] == null)
                     script.getInstructions()[fullAddr * 2] = new Label();

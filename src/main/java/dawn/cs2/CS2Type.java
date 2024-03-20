@@ -3,7 +3,6 @@ package dawn.cs2;
 import dawn.cs2.ast.*;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
@@ -20,6 +19,19 @@ public class CS2Type {
     private boolean structure;
 
     //BASE TYPES
+
+    public static CS2Type AREA = new CS2Type(0, 0, 0, "area", 'R');
+    public static CS2Type DBROW = new CS2Type(0, 0, 0, "dbrow", 'c');
+    public static CS2Type INTERFACE = new CS2Type(0, 0, 0, "interface", 'a');
+    public static CS2Type LOC = new CS2Type(0, 0, 0, "loc", 'l');
+    public static CS2Type LOCSHAPE = new CS2Type(0, 0, 0, "locshape", 'H');
+    public static CS2Type MAPELEMENT = new CS2Type(0, 0, 0, "mapelement", 'µ');
+    public static CS2Type NEWVAR = new CS2Type(0, 0, 0, "newvar", '-');
+    public static CS2Type OVERLAYINTERFACE = new CS2Type(0, 0, 0, "overlayinterface", 'L');
+    public static CS2Type PLAYER_UID = new CS2Type(0, 0, 0, "playeruid", 'p');
+    public static CS2Type TOPLEVELINTERFACE = new CS2Type(0, 0, 0, "toplevelinterface", 'F');
+
+
     public static CS2Type VOID = new CS2Type(0, 0, 0, "void", '\0');
     public static CS2Type BOOLEAN = new CS2Type(1, 0, 0, "boolean", '1');
     public static CS2Type INT = new CS2Type(1, 0, 0, "int", 'i');
@@ -27,14 +39,14 @@ public class CS2Type {
     public static CS2Type SPRITE = new CS2Type(1, 0, 0, "Sprite", 'd');
     public static CS2Type MODEL = new CS2Type(1, 0, 0, "Model", 'm');
     public static CS2Type MIDI = new CS2Type(1, 0, 0, "Midi", 'M');
-    public static CS2Type DATAMAP = new CS2Type(1, 0, 0, "DataMap", 'g');
+    public static CS2Type ENUM = new CS2Type(1, 0, 0, "DataMap", 'g');
     public static CS2Type ATTRIBUTEMAP = new CS2Type(1, 0, 0, "AttrMap", 'J');
     public static CS2Type CHAR = new CS2Type(1, 0, 0, "char", 'z');
     public static CS2Type CONTAINER = new CS2Type(1, 0, 0, "Container", 'v');
     public static CS2Type STRING = new CS2Type(0, 1, 0, "string", 's');
     public static CS2Type LONG = new CS2Type(0, 0, 1, "long", '§');
-    public static CS2Type WIDGET_PTR = new CS2Type(1, 0, 0, "Widget", 'I');
-    public static CS2Type LOCATION = new CS2Type(1, 0, 0, "Location", 'c');
+    public static CS2Type COMPONENT = new CS2Type(1, 0, 0, "Widget", 'I');
+    public static CS2Type COORD = new CS2Type(1, 0, 0, "Location", 'c');
     public static CS2Type ITEM = new CS2Type(1, 0, 0, "Item", 'o');
     //    public static CS2Type ITEM_NAMED = new CS2Type(1, 0, 0, "Item", 'O', false);
     public static CS2Type COLOR = new CS2Type(1, 0, 0, "Color", 'i'); //Not a real type, but helps us know where we need to convert int to hex notation
@@ -61,7 +73,7 @@ public class CS2Type {
 
     public static CS2Type UNKNOWN = new CS2Type(0, 0, 0, "??", '\0');
 
-    public static CS2Type[] TYPE_LIST = new CS2Type[]{VOID, CALLBACK, BOOLEAN, INT, FONTMETRICS, SPRITE, MODEL, MIDI, LOCATION, CHAR, STRING, LONG, UNKNOWN, WIDGET_PTR, ITEM, COLOR, CONTAINER, DATAMAP, ATTRIBUTEMAP, IDENTIKIT, ANIM, MAPID, GRAPHIC, SKILL, NPCDEF, QCPHRASE, CHATCAT, TEXTURE, STANCE, SPELL, CATEGORY, SOUNDEFFECT, INT_ARRAY, LONG_ARRAY, STRING_ARRAY};
+    public static CS2Type[] TYPE_LIST = new CS2Type[]{AREA, DBROW, INTERFACE, LOC, LOCSHAPE, MAPELEMENT, NEWVAR, OVERLAYINTERFACE, PLAYER_UID, TOPLEVELINTERFACE, VOID, CALLBACK, BOOLEAN, INT, FONTMETRICS, SPRITE, MODEL, MIDI, COORD, CHAR, STRING, LONG, UNKNOWN, COMPONENT, ITEM, COLOR, CONTAINER, ENUM, ATTRIBUTEMAP, IDENTIKIT, ANIM, MAPID, GRAPHIC, SKILL, NPCDEF, QCPHRASE, CHATCAT, TEXTURE, STANCE, SPELL, CATEGORY, SOUNDEFFECT, INT_ARRAY, LONG_ARRAY, STRING_ARRAY};
     private static List<CS2Type> cache = new ArrayList<CS2Type>();
 
     //TODO: Refactor this
@@ -137,9 +149,9 @@ public class CS2Type {
             return expr;
         }
 
-        if (type.equals(LOCATION))
+        if (type.equals(COORD))
             return new NewLocationNode(expr);
-        if (type.equals(WIDGET_PTR))
+        if (type.equals(COMPONENT))
             return new NewWidgetPointerNode(expr);
         if (type.equals(COLOR))
             return new NewColorNode(expr instanceof NewWidgetPointerNode ? ((NewWidgetPointerNode) expr).getExpression() : expr);
@@ -244,16 +256,24 @@ public class CS2Type {
             case '\0':
                 return CS2Type.UNKNOWN;
 //                return VOID;
+            case '1':
+                return BOOLEAN;
+            case 'y':
+                return CATEGORY;
+            case 'z':
+                return CHAR;
+            case 'I':
+                return COMPONENT;
+            case 'c':
+                return COORD;
+            case 'g':
+                return ENUM;
             case '§':
                 return LONG;
             case 'i':
                 return INT;
-            case 'z':
-                return CHAR;
             case 's':
                 return STRING;
-            case '1':
-                return BOOLEAN;
             case 'o':
             case 'O':
                 //One of these is actually NAMED_ITEM?
@@ -264,14 +284,10 @@ public class CS2Type {
                 return SKILL;
             case 't':
                 return GRAPHIC;
-            case 'c':
-                return LOCATION;
             case 'n':
                 return NPCDEF;
             case 'J':
                 return ATTRIBUTEMAP;
-            case 'g':
-                return DATAMAP;
             case 'f':
                 return FONTMETRICS;
             case 'd':
@@ -284,8 +300,6 @@ public class CS2Type {
                 return IDENTIKIT;
             case 'v':
                 return CONTAINER;
-            case 'I':
-                return WIDGET_PTR;
             case 'e':
                 return QCPHRASE;
             case 'k':
@@ -298,8 +312,6 @@ public class CS2Type {
                 return SPELL;
             case '`':
                 return MAPID;
-            case 'y':
-                return CATEGORY;
             case '«':
                 return SOUNDEFFECT;
 //            case 'P':
